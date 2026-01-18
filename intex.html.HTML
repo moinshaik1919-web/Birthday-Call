@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Special One - Mehawish ❤️</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #ff2d55;
+            --secondary: #6a1b9a;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0c0a09;
+            color: #f5f5f5;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* --- Aurora Gradient Background --- */
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, hsla(333,70%,55%,.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, hsla(282, 82%, 54%, .3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, hsla(210, 89%, 60%, .3) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, hsla(35, 90%, 60%, .3) 0%, transparent 50%);
+            filter: blur(80px);
+            animation: aurora-drift 20s infinite alternate ease-in-out;
+            background-size: 200% 200%;
+        }
+
+        @keyframes aurora-drift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* --- Glassmorphism --- */
+        .glass-card {
+            background: rgba(12, 10, 9, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            border-radius: 28px;
+        }
+
+        .text-gradient {
+            background: linear-gradient(to bottom right, #ffffff, #ff9bb0, #ff2d55);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff2d55 0%, #d4145a 100%);
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 45, 85, 0.6);
+        }
+
+        /* --- Progress Bar --- */
+        .progress-container {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            z-index: 100;
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 20%;
+            background: linear-gradient(to right, #ff2d55, #6a1b9a);
+            transition: width 0.6s ease;
+        }
+
+        /* --- Polaroid Styling FIX (Showing Full Photo) --- */
+        .polaroid-container {
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .polaroid {
+            background: white;
+            padding: 10px 10px 35px 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transform: rotate(-1.5deg);
+            transition: transform 0.1s ease-out;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: auto; /* Full Height */
+            display: block;
+            border-radius: 2px;
+        }
+
+        .polaroid-caption {
+            font-family: 'Playfair Display', serif;
+            color: #333;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* --- Steps --- */
+        .step {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .step.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .heart-beat {
+            animation: pulse-heart 1.8s infinite ease-in-out;
+            display: inline-block;
+        }
+
+        @keyframes pulse-heart {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #ff2d55); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px #ff2d55); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="aurora-bg"></div>
+    <div id="canvas-container"></div>
+
+    <div class="progress-container">
+        <div id="progress-fill"></div>
+    </div>
+
+    <!-- Step 1: Welcome -->
+    <div id="step1" class="step active glass-card p-10 text-center">
+        <div class="text-6xl mb-6 heart-beat">❤️</div>
+        <h1 class="text-4xl font-bold mb-4 text-gradient">Hey Mehawish,</h1>
+        <p class="text-gray-300 text-lg mb-8 italic">"Ye sirf ek birthday wish nahi hai... ye mere dil ka ek chota sa hissa hai jo maine sirf tumhare liye banaya hai."</p>
+        <button onclick="nextStep(2)" class="btn-primary px-10 py-3 rounded-full font-semibold text-white">Shuru Karein?</button>
+    </div>
+
+    <!-- Step 2: Confession Tone Birthday -->
+    <div id="step2" class="step glass-card p-10 text-center">
+        <div class="text-6xl mb-6">🎂</div>
+        <h1 class="text-4xl font-bold mb-4 text-gradient">Happy Birthday!</h1>
+        <p class="text-gray-300 text-lg mb-8 italic">"Main bahut shukr-guzaar hoon ki tum meri life mein aayi. Tumhare bina meri duniya itni haseen kabhi nahi hoti."</p>
+        <button onclick="nextStep(3)" class="btn-primary px-8 py-3 rounded-full font-semibold text-white">Mere Ehsaas...</button>
+    </div>
+
+    <!-- Step 3: Deep Qualities -->
+    <div id="step3" class="step glass-card p-8 text-center" style="max-width: 600px;">
+        <h2 class="text-3xl font-bold mb-6 text-gradient italic">Why You're My Favorite</h2>
+        <div class="grid grid-cols-2 gap-4 text-left mb-8">
+            <div class="col-span-2 glass-card p-4 bg-white/5 border-pink-500/10">
+                <h3 class="font-bold text-pink-400">✨ Tumhari Saadgi</h3>
+                <p class="text-sm text-gray-400">Log chehre par marte hain, par mujhe tumhari rooh aur tumhare saaf dil se ishq hai.</p>
+            </div>
+            <div class="glass-card p-4 bg-white/5 border-pink-500/10">
+                <h3 class="font-bold text-pink-400">😊 Wo Hasi</h3>
+                <p class="text-sm text-gray-400">Tumhari muskurahat meri har pareshani ka hal hai.</p>
+            </div>
+            <div class="glass-card p-4 bg-white/5 border-pink-500/10">
+                <h3 class="font-bold text-pink-400">🌟 Mera Sukoon</h3>
+                <p class="text-sm text-gray-400">Tumse baat karke jo sukoon milta hai, wo kahin aur nahi.</p>
+            </div>
+        </div>
+        <button onclick="nextStep(4)" class="btn-primary px-8 py-3 rounded-full font-semibold text-white">Ek Khaas Yaad...</button>
+    </div>
+
+    <!-- Step 4: Confession Paragraph + Full Photo -->
+    <div id="step4" class="step glass-card p-6 text-center">
+        <h2 class="text-3xl font-bold mb-4 text-gradient italic">You're Perfect</h2>
+        <div class="polaroid-container mb-6">
+            <div id="polaroid" class="polaroid">
+                <img src="https://i.ibb.co/60sGt5Nq/img101.jpg" alt="Mehawish Full Image">
+                <div class="polaroid-caption">Mehawish ✨</div>
+            </div>
+        </div>
+        <p class="text-gray-300 italic mb-6">
+            "Kehne ko toh tum meri best friend ho, par sach toh ye hai ki mera dil hamesha tumhara hi hona chahta hai. Maine kabhi bataya nahi, par mere har khayal mein sirf tum hi rehti ho."
+        </p>
+        <button onclick="nextStep(5)" class="btn-primary px-8 py-3 rounded-full font-semibold text-white">Aakhri Baat...</button>
+    </div>
+
+    <!-- Step 5: Final Confession/Wish -->
+    <div id="step5" class="step glass-card p-10 text-center">
+        <div class="text-6xl mb-6">💖</div>
+        <h1 class="text-3xl font-bold mb-4 text-gradient italic">Meri Dua...</h1>
+        <p class="text-gray-300 text-lg mb-8 italic">"Dua hai ki hamara ye rishta hamesha aise hi bana rahe, aur tum hamesha mere sath raho. Tum mere liye sabse khaas ho."</p>
+        
+        <div id="final-message" class="hidden text-3xl font-bold text-pink-500 mb-8 italic">
+            Happy Birthday, My Favorite Soul! 🎂❤️
+        </div>
+
+        <button id="celebrate-btn" onclick="runFinale()" class="btn-primary px-10 py-4 rounded-full font-bold text-xl text-white">Celebrate!</button>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        // --- Three.js Background Animation (3D Hearts) ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const hearts = [];
+        const heartShape = new THREE.Shape();
+        heartShape.moveTo(0, 0);
+        heartShape.bezierCurveTo(0, 0.5, 0.5, 1, 1, 1);
+        heartShape.bezierCurveTo(1.5, 1, 1.5, 0.5, 1.5, 0);
+        heartShape.bezierCurveTo(1.5, -0.5, 1, -1, 0, -1.5);
+        heartShape.bezierCurveTo(-1, -1, -1.5, -0.5, -1.5, 0);
+        heartShape.bezierCurveTo(-1.5, 0.5, -1.5, 1, -1, 1);
+        heartShape.bezierCurveTo(-0.5, 1, 0, 0.5, 0, 0);
+
+        const geometry = new THREE.ExtrudeGeometry(heartShape, { depth: 0.3, bevelEnabled: true, bevelSize: 0.1, bevelThickness: 0.1 });
+
+        for (let i = 0; i < 25; i++) {
+            const material = new THREE.MeshPhongMaterial({ color: 0xff2d55, shininess: 80 });
+            const heart = new THREE.Mesh(geometry, material);
+            heart.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 10 - 5);
+            heart.rotation.z = Math.PI;
+            heart.scale.set(0.2, 0.2, 0.2);
+            heart.userData = { speed: 0.005 + Math.random() * 0.01, offset: Math.random() * Math.PI * 2 };
+            scene.add(heart);
+            hearts.push(heart);
+        }
+
+        const light = new THREE.DirectionalLight(0xffffff, 1.2);
+        light.position.set(1, 1, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        camera.position.z = 8;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            hearts.forEach(h => {
+                h.position.y += Math.sin(Date.now() * 0.001 + h.userData.offset) * 0.004;
+                h.rotation.y += h.userData.speed;
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- Step Navigation ---
+        function nextStep(step) {
+            const currentEl = document.getElementById(`step${currentStep}`);
+            const nextEl = document.getElementById(`step${step}`);
+
+            gsap.to(currentEl, { opacity: 0, y: -30, duration: 0.5, onComplete: () => {
+                currentEl.classList.remove('active');
+                nextEl.classList.add('active');
+                gsap.fromTo(nextEl, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 });
+                currentStep = step;
+                document.getElementById('progress-fill').style.width = `${(currentStep / totalSteps) * 100}%`;
+            }});
+        }
+
+        // --- Finale ---
+        function runFinale() {
+            const btn = document.getElementById('celebrate-btn');
+            const finalMsg = document.getElementById('final-message');
+            gsap.to(btn, { opacity: 0, scale: 0, duration: 0.5 });
+            
+            setTimeout(() => {
+                finalMsg.classList.remove('hidden');
+                gsap.fromTo(finalMsg, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 });
+            }, 500);
+
+            const end = Date.now() + 6000;
+            (function frame() {
+                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff2d55', '#ffffff'] });
+                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff2d55', '#ffffff'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+
+            hearts.forEach(h => gsap.to(h.position, { y: 20, duration: 4, ease: "power2.in" }));
+        }
+
+        // Parallax Effect for Polaroid
+        const polaroid = document.getElementById('polaroid');
+        document.addEventListener('mousemove', (e) => {
+            if (currentStep !== 4) return;
+            const x = (window.innerWidth / 2 - e.pageX) / 25;
+            const y = (window.innerHeight / 2 - e.pageY) / 25;
+            polaroid.style.transform = `rotateY(${x}deg) rotateX(${y}deg) rotate(-1.5deg)`;
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
